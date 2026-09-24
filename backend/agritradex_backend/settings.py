@@ -16,10 +16,10 @@ load_dotenv(BASE_DIR / '.env')
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-agritradex-dev-secret-key-2026-secure-token')
 DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 't')
 
-allowed_hosts_env = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1')
+allowed_hosts_env = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,.vercel.app')
 ALLOWED_HOSTS = [h.strip() for h in allowed_hosts_env.split(',') if h.strip()]
-if 'testserver' not in ALLOWED_HOSTS:
-    ALLOWED_HOSTS.extend(['testserver', 'localhost', '127.0.0.1', '*'])
+if '.vercel.app' not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.extend(['.vercel.app', 'localhost', '127.0.0.1', '*'])
 
 # Application definition
 INSTALLED_APPS = [
@@ -92,10 +92,12 @@ if USE_MYSQL:
         }
     }
 else:
+    # Use /tmp on Vercel serverless environment if SQLite is used
+    db_path = Path('/tmp/db.sqlite3') if os.getenv('VERCEL') else (BASE_DIR / 'db.sqlite3')
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+            'NAME': db_path,
         }
     }
 
